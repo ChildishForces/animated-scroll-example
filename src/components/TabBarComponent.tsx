@@ -1,7 +1,7 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/src/types';
 import { BlurView } from 'expo-blur';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
@@ -22,16 +22,24 @@ export const TabBarComponent: React.FC<TabBarComponentProps> = ({
   // Context
   const [scrollValue] = useScrollContext();
 
+  // State
+  const [height, setHeight] = useState(0);
+
   // Animated
   const animatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: scrollValue.value }],
+      transform: [{ translateY: scrollValue.value * height }],
     }),
-    [scrollValue],
+    [scrollValue, height],
   );
 
+  // Methods
+  const handleLayout = (event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height);
+
   return (
-    <Animated.View style={[styles.root, styles.center, { bottom: insets.bottom }, animatedStyle]}>
+    <Animated.View
+      style={[styles.root, styles.center, { paddingBottom: insets.bottom }, animatedStyle]}
+      onLayout={handleLayout}>
       <View style={styles.container}>
         <BlurView style={StyleSheet.absoluteFill} />
         <View style={[styles.row, styles.gap, styles.center]}>
@@ -58,6 +66,7 @@ const styles = StyleSheet.create({
   root: {
     left: 16,
     right: 16,
+    bottom: 0,
     position: 'absolute',
   },
   container: {

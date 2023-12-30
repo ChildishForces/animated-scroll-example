@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Separator } from './Separator';
 import { Skeleton } from './Skeleton';
-import { TAB_BAR_HEIGHT } from '../constants';
+import { SCROLL_DISTANCE } from '../constants';
 import { useScrollContext } from '../context/ScrollContext';
 import { clamp } from '../utilities/math';
 
@@ -18,16 +18,18 @@ export const ContentScroller: React.FC = () => {
   const previousScrollValue = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(
     (event) => {
-      if (event.contentOffset.y < 0 || event.contentOffset.y > event.contentSize.height) {
+      const { y } = event.contentOffset;
+
+      if (y < 0 || y > event.contentSize.height) {
         return;
       }
 
       scrollValue.value = clamp(
-        scrollValue.value + (event.contentOffset.y - previousScrollValue.value) / 2,
+        scrollValue.value + (y - previousScrollValue.value) / SCROLL_DISTANCE,
         0,
-        TAB_BAR_HEIGHT + bottom,
+        1,
       );
-      previousScrollValue.value = event.contentOffset.y;
+      previousScrollValue.value = y;
     },
     [bottom],
   );
