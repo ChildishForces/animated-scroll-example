@@ -1,19 +1,14 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/src/types';
 import { BlurView } from 'expo-blur';
 import React, { useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import type { SharedValue } from 'react-native-reanimated';
+import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import { TabBarButton } from './TabBarButton';
 import { TAB_BAR_HEIGHT } from '../constants';
 import { useScrollContext } from '../context/ScrollContext';
 
-interface TabBarComponentProps extends BottomTabBarProps {
-  scrollValue: SharedValue<number>;
-}
-
-export const TabBarComponent: React.FC<TabBarComponentProps> = ({
+export const TabBarComponent: React.FC<BottomTabBarProps> = ({
   state,
   navigation,
   descriptors,

@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import * as React from 'react';
 
 import { TabBarComponent } from '../components/TabBarComponent';
-import { useScrollContext } from '../context/ScrollContext';
 import { ChatScreen } from '../screens/Chat';
 import { FavouritesScreen } from '../screens/Favourites';
 import { HelpScreen } from '../screens/Help';
@@ -14,11 +13,9 @@ import { SettingsScreen } from '../screens/Settings';
 const Tab = createBottomTabNavigator();
 
 export const Navigator: React.FC = () => {
-  const scrollValue = useScrollContext();
-
   return (
     <NavigationContainer>
-      <Tab.Navigator tabBar={(props) => <TabBarComponent {...props} scrollValue={scrollValue} />}>
+      <Tab.Navigator tabBar={(props) => <TabBarComponent {...props} />}>
         <Tab.Screen
           name="Home"
           component={HomeScreen}

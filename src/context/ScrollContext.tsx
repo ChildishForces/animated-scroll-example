@@ -13,8 +13,9 @@ export const ScrollContextProvider: React.FC<React.PropsWithChildren> = ({ child
   const scrollValue = useSharedValue(0);
 
   // Methods
-  const handleReset = () =>
-    (scrollValue.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.cubic) }));
+  const handleReset = () => {
+    scrollValue.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.cubic) });
+  };
 
   return (
     <ScrollContext.Provider value={[scrollValue, handleReset]}>{children}</ScrollContext.Provider>
