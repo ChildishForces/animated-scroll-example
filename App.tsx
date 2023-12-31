@@ -1,3 +1,4 @@
+import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -6,10 +7,13 @@ import { ScrollContextProvider } from './src/context/ScrollContext';
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ScrollContextProvider>
-        <Navigator />
-      </ScrollContextProvider>
-    </SafeAreaProvider>
+    <>
+      <StatusBar style="dark" />
+      <SafeAreaProvider>
+        <ScrollContextProvider>
+          <Navigator />
+        </ScrollContextProvider>
+      </SafeAreaProvider>
+    </>
   );
 }

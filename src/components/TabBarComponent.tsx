@@ -2,7 +2,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/src/types'
 import { BlurView } from 'expo-blur';
 import React, { useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useDerivedValue } from 'react-native-reanimated';
 
 import { TabBarButton } from './TabBarButton';
 import { TAB_BAR_HEIGHT } from '../constants';
@@ -21,9 +21,10 @@ export const TabBarComponent: React.FC<BottomTabBarProps> = ({
   const [height, setHeight] = useState(0);
 
   // Animated
+  const easedValue = useDerivedValue(() => Easing.ease(scrollValue.value), [scrollValue]);
   const animatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: scrollValue.value * height }],
+      transform: [{ translateY: easedValue.value * height }],
     }),
     [scrollValue, height],
   );

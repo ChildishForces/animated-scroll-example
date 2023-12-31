@@ -2,8 +2,12 @@ import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import * as React from 'react';
+import { useState } from 'react';
+import { LayoutChangeEvent } from 'react-native';
 
+import { HeaderComponent } from '../components/HeaderComponent';
 import { TabBarComponent } from '../components/TabBarComponent';
+import { HeaderLayoutProvider } from '../context/HeaderLayoutContext';
 import { ChatScreen } from '../screens/Chat';
 import { FavouritesScreen } from '../screens/Favourites';
 import { HelpScreen } from '../screens/Help';
@@ -12,48 +16,47 @@ import { SettingsScreen } from '../screens/Settings';
 
 const Tab = createBottomTabNavigator();
 
+interface TabBarIcon {
+  name: string;
+  component: React.FC;
+  icon: React.ComponentProps<typeof MaterialIcon>['name'];
+}
+
+const TABS: TabBarIcon[] = [
+  { name: 'Home', component: HomeScreen, icon: 'home' },
+  { name: 'Chat', component: ChatScreen, icon: 'chat' },
+  { name: 'Favourites', component: FavouritesScreen, icon: 'star' },
+  { name: 'Help', component: HelpScreen, icon: 'help' },
+  { name: 'Settings', component: SettingsScreen, icon: 'settings' },
+];
+
 export const Navigator: React.FC = () => {
+  // State
+  const [headerHeight, setHeaderHeight] = useState(95);
+
+  // Methods
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setHeaderHeight(event.nativeEvent.layout.height);
+  };
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator tabBar={(props) => <TabBarComponent {...props} />}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => <MaterialIcon name="home" color={color} size={size} />,
-          }}
-        />
-        <Tab.Screen
-          name="Chat"
-          component={ChatScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => <MaterialIcon name="chat" color={color} size={size} />,
-          }}
-        />
-        <Tab.Screen
-          name="Favourites"
-          component={FavouritesScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => <MaterialIcon name="star" color={color} size={size} />,
-          }}
-        />
-        <Tab.Screen
-          name="Help"
-          component={HelpScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => <MaterialIcon name="help" color={color} size={size} />,
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcon name="settings" color={color} size={size} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <HeaderLayoutProvider value={headerHeight}>
+      <NavigationContainer>
+        <Tab.Navigator tabBar={(props) => <TabBarComponent {...props} />}>
+          {TABS.map(({ icon, ...rest }) => (
+            <Tab.Screen
+              key={rest.name}
+              {...rest}
+              options={{
+                header: (props) => <HeaderComponent {...props} onLayout={handleLayout} />,
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialIcon name={icon} color={color} size={size} />
+                ),
+              }}
+            />
+          ))}
+        </Tab.Navigator>
+      </NavigationContainer>
+    </HeaderLayoutProvider>
   );
 };
