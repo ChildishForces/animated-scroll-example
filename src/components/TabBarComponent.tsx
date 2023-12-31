@@ -34,7 +34,12 @@ export const TabBarComponent: React.FC<BottomTabBarProps> = ({
 
   return (
     <Animated.View
-      style={[styles.root, styles.center, { paddingBottom: Math.max(insets.bottom, 16) }, animatedStyle]}
+      style={[
+        styles.root,
+        styles.center,
+        { paddingBottom: Math.max(insets.bottom, 16) },
+        animatedStyle,
+      ]}
       onLayout={handleLayout}>
       <View style={styles.container}>
         <BlurView style={StyleSheet.absoluteFill} />
