@@ -8,18 +8,23 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useDerivedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GREY_COLOR } from '../constants';
+import { GREY_COLOR, TRANSITION_QUICK } from '../constants';
 import { useHeaderLayout } from '../context/HeaderLayoutContext';
 import { useScrollContext } from '../context/ScrollContext';
+import { useBinaryTabBar } from '../state/settings';
 
 interface HeaderComponentProps extends BottomTabHeaderProps {
   onLayout: (event: LayoutChangeEvent) => void;
 }
 
 export const HeaderComponent: React.FC<HeaderComponentProps> = ({ route, options, onLayout }) => {
+  // External State
+  const [tabBarBinaryCollapse] = useBinaryTabBar();
+
   // Computed Values
   const [scrollValue] = useScrollContext();
   const height = useHeaderLayout();
@@ -28,24 +33,32 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = ({ route, options
 
   // Animated
   const easedValue = useDerivedValue(() => Easing.ease(scrollValue.value), [scrollValue]);
+  const shownAmount = useDerivedValue(
+    () => withTiming(scrollValue.value > 0.5 ? 1 : 0, TRANSITION_QUICK),
+    [scrollValue],
+  );
+  const correctValue = useDerivedValue(
+    () => (tabBarBinaryCollapse ? shownAmount.value : easedValue.value),
+    [tabBarBinaryCollapse],
+  );
   const animatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: easedValue.value * -height }],
+      transform: [{ translateY: correctValue.value * -height }],
     }),
     [easedValue, height, top],
   );
   const animatedTextStyle = useAnimatedStyle(
     () => ({
-      opacity: interpolate(easedValue.value, [0, 1], [1, Platform.OS === 'android' ? 0.75 : 0]),
+      opacity: interpolate(correctValue.value, [0, 1], [1, Platform.OS === 'android' ? 0.75 : 0]),
       transform:
         Platform.OS === 'android'
           ? [
-              { scale: interpolate(easedValue.value, [0, 1], [1, 0.75]) },
-              { translateY: interpolate(easedValue.value, [0, 1], [0, 18]) },
+              { scale: interpolate(correctValue.value, [0, 1], [1, 0.75]) },
+              { translateY: interpolate(correctValue.value, [0, 1], [0, 18]) },
             ]
           : undefined,
     }),
-    [easedValue],
+    [correctValue],
   );
 
   return (

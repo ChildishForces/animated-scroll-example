@@ -40,7 +40,7 @@ export const ContentScroller: React.FC = () => {
   // Computed Values
   const contentContainerStyle = useMemo(
     () => ({ paddingTop: 16 + headerHeight + top, paddingBottom: 16 + bottom + 40 }),
-    [],
+    [headerHeight, top, bottom],
   );
 
   return (

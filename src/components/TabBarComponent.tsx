@@ -2,11 +2,17 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/src/types'
 import { BlurView } from 'expo-blur';
 import React, { useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useDerivedValue } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { TabBarButton } from './TabBarButton';
-import { TAB_BAR_HEIGHT } from '../constants';
+import { TAB_BAR_HEIGHT, TRANSITION_QUICK } from '../constants';
 import { useScrollContext } from '../context/ScrollContext';
+import { useBinaryTabBar } from '../state/settings';
 
 export const TabBarComponent: React.FC<BottomTabBarProps> = ({
   state,
@@ -17,16 +23,27 @@ export const TabBarComponent: React.FC<BottomTabBarProps> = ({
   // Context
   const [scrollValue] = useScrollContext();
 
+  // External State
+  const [tabBarBinaryCollapse] = useBinaryTabBar();
+
   // State
   const [height, setHeight] = useState(0);
 
   // Animated
   const easedValue = useDerivedValue(() => Easing.ease(scrollValue.value), [scrollValue]);
+  const shownAmount = useDerivedValue(
+    () => withTiming(scrollValue.value > 0.5 ? 1 : 0, TRANSITION_QUICK),
+    [scrollValue],
+  );
+  const correctValue = useDerivedValue(
+    () => (tabBarBinaryCollapse ? shownAmount.value : easedValue.value),
+    [tabBarBinaryCollapse],
+  );
   const animatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: easedValue.value * height }],
+      transform: [{ translateY: correctValue.value * height }],
     }),
-    [scrollValue, height],
+    [correctValue, height],
   );
 
   // Methods
