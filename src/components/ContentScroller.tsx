@@ -14,7 +14,7 @@ import { clamp } from '../utilities/math';
 export const ContentScroller: React.FC = () => {
   // Context
   const [scrollValue] = useScrollContext();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const headerHeight = useHeaderLayout();
 
   // Animated
@@ -39,7 +39,7 @@ export const ContentScroller: React.FC = () => {
 
   // Computed Values
   const contentContainerStyle = useMemo(
-    () => ({ paddingTop: 16 + headerHeight, paddingBottom: 16 + bottom + 40 }),
+    () => ({ paddingTop: 16 + headerHeight + top, paddingBottom: 16 + bottom + 40 }),
     [],
   );
 

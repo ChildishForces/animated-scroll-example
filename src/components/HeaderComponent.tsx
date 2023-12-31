@@ -2,8 +2,13 @@ import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs/src/types';
 import { getHeaderTitle } from '@react-navigation/elements';
 import { BlurView } from 'expo-blur';
 import * as React from 'react';
-import { type LayoutChangeEvent, StyleSheet, Text } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useDerivedValue } from 'react-native-reanimated';
+import { type LayoutChangeEvent, Platform, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useDerivedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GREY_COLOR } from '../constants';
@@ -25,32 +30,44 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = ({ route, options
   const easedValue = useDerivedValue(() => Easing.ease(scrollValue.value), [scrollValue]);
   const animatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: easedValue.value * -(height - top) }],
+      transform: [{ translateY: easedValue.value * -height }],
     }),
-    [scrollValue, height, top],
+    [easedValue, height, top],
+  );
+  const animatedTextStyle = useAnimatedStyle(
+    () => ({
+      opacity: interpolate(easedValue.value, [0, 1], [1, Platform.OS === 'android' ? 0.75 : 0]),
+      transform:
+        Platform.OS === 'android'
+          ? [
+              { scale: interpolate(easedValue.value, [0, 1], [1, 0.75]) },
+              { translateY: interpolate(easedValue.value, [0, 1], [0, 18]) },
+            ]
+          : undefined,
+    }),
+    [easedValue],
   );
 
   return (
-    <Animated.View
-      style={[styles.root, { paddingTop: Math.max(top, 16) }, animatedStyle]}
-      onLayout={onLayout}>
+    <Animated.View style={[styles.root, { paddingTop: Math.max(top, 16) }, animatedStyle]}>
       <BlurView style={[StyleSheet.absoluteFill, styles.background]} />
-      <Text style={styles.title}>{title}</Text>
+      <View onLayout={onLayout} style={styles.padding}>
+        <Animated.Text style={[styles.title, animatedTextStyle]}>{title}</Animated.Text>
+      </View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
-    padding: 16,
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: GREY_COLOR,
-    height: 95,
   },
+  padding: { paddingTop: 8, paddingHorizontal: 16, paddingBottom: 16 },
   title: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
   background: {
     backgroundColor: 'rgba(255,255,255,0.85)',
